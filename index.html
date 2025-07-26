@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CriticAI - Advanced Reasoning Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0f;
+            color: #e8e8e8;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .analysis-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .input-area {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #aiResponse {
+            width: 100%;
+            min-height: 300px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            color: #e8e8e8;
+            font-size: 17px;
+            line-height: 1.9;
+            resize: vertical;
+            font-family: 'Georgia', serif;
+            transition: all 0.3s ease;
+        }
+
+        #aiResponse:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Advanced Analysis Styles */
+        .reasoning-block {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .reasoning-block:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(5px);
+        }
+
+        .premise-block {
+            border-left-color: #22c55e;
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.1), transparent);
+        }
+
+        .inference-block {
+            border-left-color: #3b82f6;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent);
+        }
+
+        .conclusion-block {
+            border-left-color: #a855f7;
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.1), transparent);
+        }
+
+        .assumption-block {
+            border-left-color: #ef4444;
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.1), transparent);
+        }
+
+        .block-label {
+            position: absolute;
+            top: -8px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .premise-block .block-label {
+            background: #22c55e;
+            color: white;
+        }
+
+        .inference-block .block-label {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .conclusion-block .block-label {
+            background: #a855f7;
+            color: white;
+        }
+
+        .assumption-block .block-label {
+            background: #ef4444;
+            color: white;
+        }
+
+        .logical-connector {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 24px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .meta-analysis {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+
+        .strength-meter {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .strength-high { background: linear-gradient(90deg, #22c55e, #16a34a); }
+        .strength-medium { background: linear-gradient(90deg, #f59e0b, #d97706); }
+        .strength-low { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+        .cognitive-bias {
+            background: rgba(251, 146, 60, 0.1);
+            border: 1px solid rgba(251, 146, 60, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .bias-icon {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+        }
+
+        .philosophical-lens {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .counterfactual {
+            background: rgba(236, 72, 153, 0.1);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .epistemic-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .confidence-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .high-confidence { background: #22c55e; }
+        .medium-confidence { background: #f59e0b; }
+        .low-confidence { background: #ef4444; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .socratic-questions {
+            background: rgba(168, 85, 247, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .question-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #a855f7;
+            transform: translateX(5px);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            max-width: 350px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 CriticAI</h1>
+            <p>Advanced epistemic analysis and reasoning decomposition</p>
+        </div>
+
+        <div class="analysis-container">
+            <div class="input-area">
+                <textarea id="aiResponse" placeholder="Paste AI response for advanced logical decomposition...
+
+Try: 'Universal Basic Income would solve poverty by providing everyone with guaranteed income. Finland's pilot program showed positive results. Critics argue it reduces work incentives, but studies indicate most people continue working. Therefore, UBI should be implemented globally to ensure economic security.'"></textarea>
+                <div class="tooltip" id="tooltip"></div>
+            </div>
+            
+            <button class="analyze-btn" onclick="performAdvancedAnalysis()">🔬 Decompose Reasoning</button>
+
+            <div class="meta-analysis" id="analysisResult" style="display: none;">
+                <div id="structuredReasoning"></div>
+                
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <div class="card-title">🎯 Argument Strength</div>
+                        <div id="strengthAnalysis"></div>
+                    </div>
+                    
+                    <div class="analysis-card">
+                        <div class="card-title">🧭 Epistemic Status</div>
+                        <div id="epistemicAnalysis"></div>
+                    </div>
+                    
+                    <div class="analysis-card">
+                        <div class="card-title">🧠 Cognitive Patterns</div>
+                        <div id="cognitiveAnalysis"></div>
+                    </div>
+                    
+                    <div class="analysis-card">
+                        <div class="card-title">🔄 Philosophical Lens</div>
+                        <div id="philosophicalAnalysis"></div>
+                    </div>
+                </div>
+
+                <div class="socratic-questions">
+                    <div class="card-title">💭 Deeper Inquiry</div>
+                    <div id="socraticQuestions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const advancedAnalytics = {
+            cognitiveBiases: {
+                'confirmation': { name: 'Confirmation Bias', icon: '🔍', keywords: ['supports', 'confirms', 'validates'] },
+                'availability': { name: 'Availability Heuristic', icon: '🧠', keywords: ['recent', 'memorable', 'obvious'] },
+                'anchoring': { name: 'Anchoring', icon: '⚓', keywords: ['first', 'initial', 'starting'] },
+                'survivorship': { name: 'Survivorship Bias', icon: '🎯', keywords: ['successful', 'winners', 'survivors'] },
+                'hasty': { name: 'Hasty Generalization', icon: '⚡', keywords: ['all', 'always', 'never', 'everyone'] }
+            },
+            
+            philosophicalFrameworks: {
+                'utilitarian': { name: 'Utilitarian Ethics', keywords: ['greatest good', 'maximize', 'benefit', 'harm'] },
+                'deontological': { name: 'Deontological Ethics', keywords: ['duty', 'right', 'wrong', 'moral obligation'] },
+                'pragmatic': { name: 'Pragmatism', keywords: ['practical', 'works', 'effective', 'useful'] },
+                'empiricist': { name: 'Empiricism', keywords: ['evidence', 'data', 'observation', 'experience'] },
+                'rationalist': { name: 'Rationalism', keywords: ['logic', 'reason', 'deduction', 'principle'] }
+            },
+
+            epistemicMarkers: {
+                'high_confidence': ['proven', 'established', 'certainly', 'definitely'],
+                'medium_confidence': ['likely', 'probably', 'suggests', 'indicates'],
+                'low_confidence': ['might', 'could', 'possibly', 'perhaps', 'seems']
+            }
+        };
+
+        function performAdvancedAnalysis() {
+            const text = document.getElementById('aiResponse').value.trim();
+            
+            if (!text) {
+                alert('Please enter text to analyze');
+                return;
+            }
+
+            // Parse text into logical components
+            const analysis = decomposeReasoning(text);
+            
+            // Display structured reasoning
+            displayStructuredReasoning(analysis);
+            
+            // Show meta-analysis
+            document.getElementById('analysisResult').style.display = 'block';
+            
+            // Perform advanced analytics
+            analyzeArgumentStrength(analysis);
+            analyzeEpistemicStatus(text);
+            analyzeCognitivePatterns(text);
+            analyzePhilosophicalFramework(text);
+            generateSocraticQuestions(analysis);
+        }
+
+        function decomposeReasoning(text) {
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+            const analysis = {
+                premises: [],
+                inferences: [],
+                conclusions: [],
+                assumptions: []
+            };
+
+            sentences.forEach((sentence, index) => {
+                const trimmed = sentence.trim();
+                
+                // Classify sentence type based on linguistic patterns
+                if (trimmed.match(/\b(because|since|as|due to|given that)\b/i)) {
+                    analysis.premises.push({ text: trimmed, index, strength: calculatePremiseStrength(trimmed) });
+                } else if (trimmed.match(/\b(therefore|thus|consequently|hence|so)\b/i)) {
+                    analysis.conclusions.push({ text: trimmed, index, logical_gap: assessLogicalGap(trimmed, sentences.slice(0, index)) });
+                } else if (trimmed.match(/\b(if|when|assuming|granted)\b/i)) {
+                    analysis.assumptions.push({ text: trimmed, index, hidden: assessHiddenAssumptions(trimmed) });
+                } else if (index > 0 && index < sentences.length - 1) {
+                    analysis.inferences.push({ text: trimmed, index, strength: calculateInferenceStrength(trimmed) });
+                }
+            });
+
+            return analysis;
+        }
+
+        function displayStructuredReasoning(analysis) {
+            let html = '';
+            
+            // Display premises
+            analysis.premises.forEach(premise => {
+                html += `
+                    <div class="reasoning-block premise-block">
+                        <div class="block-label">Premise</div>
+                        <div>${premise.text}</div>
+                        <div class="epistemic-status">
+                            <div class="confidence-indicator ${getConfidenceClass(premise.strength)}"></div>
+                            <span>Strength: ${premise.strength}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add logical connector
+            if (analysis.premises.length > 0 && analysis.inferences.length > 0) {
+                html += '<div class="logical-connector">⬇️</div>';
+            }
+
+            // Display inferences
+            analysis.inferences.forEach(inference => {
+                html += `
+                    <div class="reasoning-block inference-block">
+                        <div class="block-label">Inference</div>
+                        <div>${inference.text}</div>
+                        <div class="epistemic-status">
+                            <div class="confidence-indicator ${getConfidenceClass(inference.strength)}"></div>
+                            <span>Logical strength: ${inference.strength}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add logical connector
+            if (analysis.inferences.length > 0 && analysis.conclusions.length > 0) {
+                html += '<div class="logical-connector">⬇️</div>';
+            }
+
+            // Display conclusions
+            analysis.conclusions.forEach(conclusion => {
+                const gapWarning = conclusion.logical_gap > 30 ? `
+                    <div class="cognitive-bias">
+                        <div class="bias-icon">⚠️</div>
+                        <strong>Logical Gap Detected:</strong> Conclusion may not fully follow from premises (Gap: ${conclusion.logical_gap}%)
+                    </div>
+                ` : '';
+                
+                html += `
+                    <div class="reasoning-block conclusion-block">
+                        <div class="block-label">Conclusion</div>
+                        <div>${conclusion.text}</div>
+                        ${gapWarning}
+                    </div>
+                `;
+            });
+
+            // Display hidden assumptions
+            if (analysis.assumptions.length > 0) {
+                html += '<div class="logical-connector">🔍 Hidden Assumptions</div>';
+                analysis.assumptions.forEach(assumption => {
+                    html += `
+                        <div class="reasoning-block assumption-block">
+                            <div class="block-label">Assumption</div>
+                            <div>${assumption.text}</div>
+                            ${assumption.hidden.length > 0 ? `
+                                <div class="counterfactual">
+                                    <strong>Implicit assumptions:</strong> ${assumption.hidden.join(', ')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('structuredReasoning').innerHTML = html;
+        }
+
+        function calculatePremiseStrength(premise) {
+            let strength = 50; // Base strength
+            
+            // Evidence indicators increase strength
+            if (premise.match(/\b(studies|research|data|evidence|statistics)\b/i)) strength += 30;
+            if (premise.match(/\b(peer-reviewed|published|academic)\b/i)) strength += 20;
+            if (premise.match(/\b(meta-analysis|systematic review)\b/i)) strength += 25;
+            
+            // Uncertainty indicators decrease strength
+            if (premise.match(/\b(might|could|possibly|seems|appears)\b/i)) strength -= 20;
+            if (premise.match(/\b(some|many|few)\b/i)) strength -= 10;
+            
+            return Math.max(10, Math.min(95, strength));
+        }
+
+        function calculateInferenceStrength(inference) {
+            let strength = 60;
+            
+            // Logical indicators
+            if (inference.match(/\b(follows|implies|leads to|results in)\b/i)) strength += 20;
+            if (inference.match(/\b(but|however|although|despite)\b/i)) strength += 15; // Shows nuance
+            
+            // Weak inference indicators
+            if (inference.match(/\b(assumption|guess|believe)\b/i)) strength -= 25;
+            
+            return Math.max(20, Math.min(90, strength));
+        }
+
+        function assessLogicalGap(conclusion, previousSentences) {
+            // Simplified gap assessment - in reality this would use NLP
+            const conclusionKeywords = conclusion.toLowerCase().split(/\W+/);
+            const premiseText = previousSentences.join(' ').toLowerCase();
+            
+            let relevantKeywords = 0;
+            conclusionKeywords.forEach(keyword => {
+                if (keyword.length > 3 && premiseText.includes(keyword)) {
+                    relevantKeywords++;
+                }
+            });
+            
+            const gap = Math.max(0, 60 - (relevantKeywords * 10));
+            return gap;
+        }
+
+        function assessHiddenAssumptions(sentence) {
+            const assumptions = [];
+            
+            // Common hidden assumptions
+            if (sentence.match(/\b(should|must|ought)\b/i)) {
+                assumptions.push('Normative framework assumed');
+            }
+            if (sentence.match(/\b(people|humans|everyone)\b/i)) {
+                assumptions.push('Universal human behavior assumed');
+            }
+            if (sentence.match(/\b(works|effective|successful)\b/i)) {
+                assumptions.push('Success criteria not defined');
+            }
+            
+            return assumptions;
+        }
+
+        function analyzeArgumentStrength(analysis) {
+            const totalPremises = analysis.premises.length;
+            const avgPremiseStrength = analysis.premises.reduce((acc, p) => acc + p.strength, 0) / totalPremises || 0;
+            const logicalGaps = analysis.conclusions.reduce((acc, c) => acc + c.logical_gap, 0) / analysis.conclusions.length || 0;
+            
+            const overallStrength = Math.max(10, avgPremiseStrength - logicalGaps);
+            
+            let strengthClass = 'strength-low';
+            if (overallStrength > 70) strengthClass = 'strength-high';
+            else if (overallStrength > 40) strengthClass = 'strength-medium';
+            
+            document.getElementById('strengthAnalysis').innerHTML = `
+                <div class="strength-meter">
+                    <div class="strength-fill ${strengthClass}" style="width: ${overallStrength}%"></div>
+                </div>
+                <p><strong>${Math.round(overallStrength)}% logical coherence</strong></p>
+                <p>Premises: ${totalPremises} | Avg. strength: ${Math.round(avgPremiseStrength)}%</p>
+                <p>Logical gaps: ${Math.round(logicalGaps)}%</p>
+            `;
+        }
+
+        function analyzeEpistemicStatus(text) {
+            const markers = advancedAnalytics.epistemicMarkers;
+            let confidence = 'medium';
+            
+            const highCount = markers.high_confidence.filter(marker => 
+                text.toLowerCase().includes(marker)).length;
+            const lowCount = markers.low_confidence.filter(marker => 
+                text.toLowerCase().includes(marker)).length;
+            
+            if (highCount > lowCount) confidence = 'high';
+            else if (lowCount > highCount) confidence = 'low';
+            
+            document.getElementById('epistemicAnalysis').innerHTML = `
+                <div class="epistemic-status">
+                    <div class="confidence-indicator ${confidence}-confidence"></div>
+                    <span>${confidence.charAt(0).toUpperCase() + confidence.slice(1)} confidence markers</span>
+                </div>
+                <p>High certainty signals: ${highCount}</p>
+                <p>Uncertainty signals: ${lowCount}</p>
+                <div class="counterfactual">
+                    <strong>Epistemic question:</strong> What evidence would change the confidence level of these claims?
+                </div>
+            `;
+        }
+
+        function analyzeCognitivePatterns(text) {
+            const biases = advancedAnalytics.cognitiveBiases;
+            const detected = [];
+            
+            for (const [key, bias] of Object.entries(biases)) {
+                bias.keywords.forEach(keyword => {
+                    if (text.toLowerCase().includes(keyword)) {
+                        detected.push(bias);
+                    }
+                });
+            }
+            
+            let html = '';
+            if (detected.length > 0) {
+                detected.forEach(bias => {
+                    html += `
+                        <div class="cognitive-bias">
+                            <div class="bias-icon">${bias.icon}</div>
+                            <strong>${bias.name}</strong> pattern detected
+                        </div>
+                    `;
+                });
+            } else {
+                html = '<p>No obvious cognitive biases detected</p>';
+            }
+            
+            document.getElementById('cognitiveAnalysis').innerHTML = html;
+        }
+
+        function analyzePhilosophicalFramework(text) {
+            const frameworks = advancedAnalytics.philosophicalFrameworks;
+            const detected = [];
+            
+            for (const [key, framework] of Object.entries(frameworks)) {
+                framework.keywords.forEach(keyword => {
+                    if (text.toLowerCase().includes(keyword)) {
+                        detected.push(framework);
+                    }
+                });
+            }
+            
+            let html = '';
+            if (detected.length > 0) {
+                detected.forEach(framework => {
+                    html += `
+                        <div class="philosophical-lens">
+                            <strong>${framework.name}</strong> perspective detected
+                        </div>
+                    `;
+                });
+            } else {
+                html = '<div class="philosophical-lens">Mixed or unclear philosophical framework</div>';
+            }
+            
+            document.getElementById('philosophicalAnalysis').innerHTML = html;
+        }
+
+        function generateSocraticQuestions(analysis) {
+            const questions = [
+                "What would convince you this argument is wrong?",
+                "What are the strongest counterarguments you can think of?",
+                "What assumptions are you making about human nature/behavior?",
+                "How might this reasoning fail in edge cases?",
+                "What data would you need to increase confidence in this conclusion?",
+                "How do different stakeholders view this issue?",
+                "What are the second and third-order effects?",
+                "What would change if the scale (time/geography/population) changed?"
+            ];
+            
+            // Select contextually relevant questions
+            const relevantQuestions = questions.slice(0, 5);
+            
+            let html = '';
+            relevantQuestions.forEach(question => {
+                html += `
+                    <div class="question-item" onclick="copyToClipboard('${question}')">
+                        ${question}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('socraticQuestions').innerHTML = html;
+        }
+
+        function getConfidenceClass(strength) {
+            if (strength > 70) return 'high-confidence';
+            if (strength > 40) return 'medium-confidence';
+            return 'low-confidence';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                event.target.style.background = 'rgba(34, 197, 94, 0.2)';
+                setTimeout(() => {
+                    event.target.style.background = 'rgba(255, 255, 255, 0.05)';
+                }, 1000);
+            });
+        }
+
+        // Initialize with sample
+        window.onload = function() {
+            document.getElementById('aiResponse').value = `Universal Basic Income would solve poverty by providing everyone with guaranteed income. Finland's pilot program showed positive results. Critics argue it reduces work incentives, but studies indicate most people continue working. Therefore, UBI should be implemented globally to ensure economic security.`;
+        };
+    </script>
+</body>
+</html>
